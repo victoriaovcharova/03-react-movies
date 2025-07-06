@@ -1,75 +1,68 @@
+import SearchBar from "../SearchBar/SearchBar";
+import MovieGrid from "../MovieGrid/MovieGrid";
+import MovieModal from "../MovieModal/MovieModal";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import Loader from "../Loader/Loader";
-import MovieGrid from "../MovieGrid/MovieGrid";
-import SearchBar from "../SearchBar/SearchBar";
-import type { Movie } from "../../types/movie";
-import fetchMovies from "../../services/movieService";
-import { useState } from "react";
-import css from './App.module.css'
-import { Toaster } from "react-hot-toast";
+import css from "./App.module.css";
 import toast from "react-hot-toast";
-import MovieModal from "../MovieModal/MovieModal";
-
+import type { Movie } from "../../types/movie";
+import { useState } from "react";
+import { fetchMovies } from "../../services/movieService";
+import { Toaster } from "react-hot-toast";
 
 export default function App() {
-    const [movies, setMovies] = useState<Movie[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [isError, setIsError] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedMovie, setSelectedMovie] = useState<Movie | null>();
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasError, setHasError] = useState(false); // ✅ покращена назва
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null); // ✅ правильна ініціалізація
 
-    const handleSearch = async (query: string) => {
-        
-        try {
-            setMovies([]);
-            setIsLoading(true);
-            setIsError(false);
+  const handleSearch = async (searchQuery: string) => {
+    try {
+      setHasError(false);
+      setMovies([]);
+      setIsLoading(true);
+      const newMovies = await fetchMovies(searchQuery);
 
-            const data = await fetchMovies(query);
+      if (newMovies.length === 0) {
+        toast("Sorry, we couldn't find any movies. Please try another search term!", {
+          duration: 3000,
+          position: "top-center",
+        });
+      }
 
-            if (data.length === 0) {
-                toast("No movies found for your request.", {
-                    duration: 2000,
-                    position: 'top-center',
-                  });
-            }
-
-            setMovies(data);
-     
-        } catch {
-            setIsError(true);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleSelectedMovie = (movie: Movie) => {
-        setSelectedMovie(movie);
-        setIsModalOpen(true);
+      setMovies(newMovies);
+    } catch {
+      setHasError(true);
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    const closeModal = () => {
-        setSelectedMovie(undefined);
-        setIsModalOpen(false);
-    }
+  const handleSelectedMovie = (movie: Movie) => {
+    setSelectedMovie(movie);
+    setIsModalOpen(true);
+  };
 
-    return (
+  const closeModal = () => {
+    setSelectedMovie(null); // ✅ правильний тип
+    setIsModalOpen(false);
+  };
 
-        <div className={css.app}>
+  return (
+    <div className={css.app}>
+      <SearchBar onSearch={handleSearch} />
+      <Toaster />
+      {isLoading && <Loader />}
+      {hasError && <ErrorMessage />}
 
-            <SearchBar onSubmit={handleSearch} />
-            
-            <Toaster/>
+      {movies.length > 0 && (
+        <MovieGrid onSelect={handleSelectedMovie} movies={movies} />
+      )}
 
-            {isLoading && <Loader />}
-
-            {isError && <ErrorMessage />}
-
-            {movies.length > 0 && <MovieGrid onSelect={handleSelectedMovie} movies={movies} />}
-            
-            {isModalOpen && selectedMovie && <MovieModal movie={selectedMovie} onClose={closeModal} />}
-            
-        </div>
-        
-    )
+      {isModalOpen && selectedMovie && (
+        <MovieModal movie={selectedMovie} onClose={closeModal} />
+      )}
+    </div>
+  );
 }
