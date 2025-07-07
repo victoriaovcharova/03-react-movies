@@ -13,9 +13,9 @@ import { Toaster } from "react-hot-toast";
 export default function App() {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [hasError, setHasError] = useState(false); // ✅ покращена назва
+  const [hasError, setHasError] = useState(false); 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null); // ✅ правильна ініціалізація
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null); 
 
   const handleSearch = async (searchQuery: string) => {
     try {
@@ -45,13 +45,13 @@ export default function App() {
   };
 
   const closeModal = () => {
-    setSelectedMovie(null); // ✅ правильний тип
+    setSelectedMovie(null); 
     setIsModalOpen(false);
   };
 
   return (
     <div className={css.app}>
-      <SearchBar onSearch={handleSearch} />
+      <SearchBar onSubmit={handleSearch} />
       <Toaster />
       {isLoading && <Loader />}
       {hasError && <ErrorMessage />}
@@ -59,7 +59,6 @@ export default function App() {
       {movies.length > 0 && (
         <MovieGrid onSelect={handleSelectedMovie} movies={movies} />
       )}
-
       {isModalOpen && selectedMovie && (
         <MovieModal movie={selectedMovie} onClose={closeModal} />
       )}

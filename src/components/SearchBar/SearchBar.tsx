@@ -2,41 +2,42 @@ import styles from "./SearchBar.module.css";
 import toast from "react-hot-toast";
 
 
-interface SearchFormProps {
-  onSearch: (saerchQuery: string) => void;
+interface SearchBarProps{
+  onSubmit: (searchQuery: string) => void;
 }
 
-export default function SearchBar({ onSearch }: SearchFormProps) {
-  
-
+export default function SearchBar({ onSubmit }: SearchBarProps) {
   const handleSubmit = (formData: FormData) => {
-
     const query = formData.get("query") as string;
 
     if (!query.trim()) {
       toast("Please enter your search query.", {
-        duration: 2000,
+        duration: 3000,
         position: "top-center",
       });
 
       return;
     }
-    onSearch(query);
+    onSubmit(query);
   };
 
   return (
     <>
       <header className={styles.header}>
+        {" "}
         <div className={styles.container}>
+          {" "}
           <a
             className={styles.link}
             href="https://www.themoviedb.org/"
             target="_blank"
             rel="noopener noreferrer"
           >
-            Powered by TMDB
+            Powered by TMDB {" "}
           </a>
+          {" "}
           <form className={styles.form} action={handleSubmit}>
+            {" "}
             <input
               className={styles.input}
               type="text"
@@ -45,8 +46,9 @@ export default function SearchBar({ onSearch }: SearchFormProps) {
               placeholder="Search movies..."
               autoFocus
             />
+            {" "}
             <button className={styles.button} type="submit">
-              Search
+              Search {" "}
             </button>
           </form>
         </div>
